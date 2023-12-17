@@ -2,13 +2,12 @@
 
 main() {
   while getopts A:K:q option; do
-      case "${option}"
-      in
-        q) QUIET=1;;
-        A) ARCH=${OPTARG};;
-        K) KERNEL=${OPTARG};;
-      esac
-    done
+    case "${option}" in
+      q) QUIET=1;;
+      A) ARCH=${OPTARG};;
+      K) KERNEL=${OPTARG};;
+    esac
+  done
 
   check_if_commands_are_present
 	build
@@ -17,7 +16,7 @@ main() {
 check_if_commands_are_present() {
   commands=("curl" "grep" "cut" "xargs" "chmod")
   for cmd in "${commands[@]}"; do
-      need_cmd "${cmd}"
+    need_cmd "${cmd}"
   done
 }
 
@@ -29,8 +28,10 @@ need_cmd() {
 }
 
 check_cmd() {
-  >&2 echo "Check $1"
-	command -v "$1" >/dev/null 2>&1
+  if [ -z "${QUIET}" ]; then
+      >&2 echo "Check $1"
+  fi
+  command -v "$1" >/dev/null 2>&1
 }
 
 build() {
@@ -52,7 +53,15 @@ prepare_build_dir() {
 
 install_bat() {
   tool_name="bat"
-  echo "Downloading ${tool_name}..."
+  if [ -n "${QUIET}" ]; then
+    optional_quiet_flag_curl="s"
+    optional_quiet_flag_tar=""
+  else
+    echo "Downloading ${tool_name}..."
+    optional_quiet_flag_curl=""
+    optional_quiet_flag_tar="v"
+  fi
+
   cputype="x86_64"
   clibtype="musl"
   ostype="unknown-linux-${clibtype}"
@@ -66,10 +75,10 @@ install_bat() {
     grep "browser_download_url" |
     cut -d '"' -f 4 |
     grep "$target" |
-    xargs -n 1 curl -LJ -o "${output_tar_dir}" # add -s to last curl to be silent
+    xargs -n 1 curl -LJ"${optional_quiet_flag_curl}" -o "${output_tar_dir}" # add -s to last curl to be silent
 
   mkdir -p "${tool_dir}"
-  tar -zxvf "${output_tar_dir}" -C "${tool_dir}" --strip-components=1 # remove v to be silent
+  tar zxf"${optional_quiet_flag_tar}" "${output_tar_dir}" -C "${tool_dir}" --strip-components=1 # remove v to be silent
   rm -rf "${output_tar_dir}"
 }
 
