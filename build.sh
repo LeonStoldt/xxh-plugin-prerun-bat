@@ -67,6 +67,7 @@ install_bat() {
 
   mkdir -p "${tool_dir}"
   tar -zxvf "${output_tar_dir}" -C "${tool_dir}" --strip-components=1 # remove v to be silent
+  rm -rf "${output_tar_dir}"
 }
 
 main "$@" || exit 1
