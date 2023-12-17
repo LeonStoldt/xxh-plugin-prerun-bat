@@ -1,36 +1,39 @@
 #!/usr/bin/env bash
 
 main() {
-	need_cmd curl
-	need_cmd grep
-	need_cmd cut
-	need_cmd xargs
-	need_cmd chmod
+  while getopts A:K:q option; do
+      case "${option}"
+      in
+        q) QUIET=1;;
+        A) ARCH=${OPTARG};;
+        K) KERNEL=${OPTARG};;
+      esac
+    done
+
+  check_if_commands_are_present
 	build
 }
 
+check_if_commands_are_present() {
+  commands=("curl" "grep" "cut" "xargs" "chmod")
+  for cmd in "${commands[@]}"; do
+      need_cmd "${cmd}"
+  done
+}
+
 need_cmd() {
-  if ! cmd_chk "$1"; then
+  if ! check_cmd "$1"; then
     error "need $1 (command not found)"
     exit 1
   fi
 }
 
-cmd_chk() {
+check_cmd() {
   >&2 echo "Check $1"
 	command -v "$1" >/dev/null 2>&1
 }
 
 build() {
-  while getopts A:K:q option; do
-    case "${option}"
-    in
-      q) QUIET=1;;
-      A) ARCH=${OPTARG};;
-      K) KERNEL=${OPTARG};;
-    esac
-  done
-
   prepare_build_dir
   install_bat
 }
