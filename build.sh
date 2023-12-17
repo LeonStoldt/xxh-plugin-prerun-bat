@@ -28,9 +28,7 @@ need_cmd() {
 }
 
 check_cmd() {
-  if [ -z "${QUIET}" ]; then
-      >&2 echo "Check $1"
-  fi
+  [ $QUIET ] || >&2 echo "Check $1"
   command -v "$1" >/dev/null 2>&1
 }
 
@@ -53,14 +51,9 @@ prepare_build_dir() {
 
 install_bat() {
   tool_name="bat"
-  if [ -n "${QUIET}" ]; then
-    optional_quiet_flag_curl="s"
-    optional_quiet_flag_tar=""
-  else
-    echo "Downloading ${tool_name}..."
-    optional_quiet_flag_curl=""
-    optional_quiet_flag_tar="v"
-  fi
+  [ $QUIET ] && arg_s='s' || arg_s=''
+  [ $QUIET ] && arg_v='' || arg_v='v'
+  [ $QUIET ] || echo "Downloading ${tool_name}..."
 
   cputype="x86_64"
   clibtype="musl"
@@ -75,10 +68,10 @@ install_bat() {
     grep "browser_download_url" |
     cut -d '"' -f 4 |
     grep "$target" |
-    xargs -n 1 curl -LJ"${optional_quiet_flag_curl}" -o "${output_tar_dir}" # add -s to last curl to be silent
+    xargs -n 1 curl -LJ"${arg_s}" -o "${output_tar_dir}" # add -s to last curl to be silent
 
   mkdir -p "${tool_dir}"
-  tar zxf"${optional_quiet_flag_tar}" "${output_tar_dir}" -C "${tool_dir}" --strip-components=1 # remove v to be silent
+  tar zxf"${arg_v}" "${output_tar_dir}" -C "${tool_dir}" --strip-components=1 # remove v to be silent
   rm -rf "${output_tar_dir}"
 }
 
