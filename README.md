@@ -1,5 +1,7 @@
 # xxh prerun plugin for [bat](https://github.com/sharkdp/bat)
 
+![demo.gif](docs/demo.gif)
+
 ## Installation
 > #### Available Flags:
 > `+q` - using quiet mode and reduced logging
